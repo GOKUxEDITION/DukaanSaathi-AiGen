@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  typecheck:
+  typecheck-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,3 +29,5 @@ jobs:
         run: npm install
       - name: Type-check backend
         run: npm run typecheck
+      - name: Run backend tests
+        run: npm test
