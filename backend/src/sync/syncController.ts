@@ -71,14 +71,14 @@ export function createSyncController(service: SyncService) {
       return res.status(401).json({ error: "UNAUTHENTICATED", message: "Authentication is required." });
     }
 
-    let serializedBody: string;
+    let serializedBody: string | undefined;
     try {
       serializedBody = JSON.stringify(req.body);
     } catch {
       return res.status(400).json({ error: "INVALID_BODY", message: "Request body must be valid JSON data." });
     }
 
-    if (serializedBody === undefined || serializedBody.length > MAX_BATCH_BYTES) {
+    if (typeof serializedBody !== "string" || serializedBody.length > MAX_BATCH_BYTES) {
       return res.status(413).json({ error: "BATCH_TOO_LARGE", message: "Sync batch exceeds the allowed size." });
     }
 
@@ -101,7 +101,6 @@ export function createSyncController(service: SyncService) {
         serverCursor: result.serverCursor,
       });
     } catch {
-      // Do not leak database errors, tokens, or tenant data to the caller.
       return res.status(500).json({
         error: "SYNC_FAILED",
         message: "Sync could not be completed. Retry with the same idempotency key.",
